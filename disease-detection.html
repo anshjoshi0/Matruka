@@ -1,0 +1,182 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-key="page_title">Crop Disease Detection</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <h1 data-key="header_title">Crop Disease Detection</h1>
+        <p data-key="header_desc">Upload crop images or videos and detect diseases using AI.</p>
+
+        <!-- Hamburger Menu Icon -->
+        <div id="menu-toggle" class="menu-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        <button onclick="window.history.back()" class="back-btn">
+      <i class="fas fa-arrow-left"></i> <span data-key="go_back">Go Back</span>
+    </button>
+
+        <!-- Language Script -->
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const lang = localStorage.getItem("selectedLanguage") || "en"; 
+                applyLanguage(lang);
+            });
+            
+            function applyLanguage(lang) {
+                // Translate elements with data-key
+                document.querySelectorAll("[data-key]").forEach(el => {
+                    const key = el.getAttribute("data-key");
+                    if(translations[lang][key]) el.innerText = translations[lang][key];
+                });
+                // Translate input placeholders
+                document.querySelectorAll("[data-key-placeholder]").forEach(el => {
+                    const key = el.getAttribute("data-key-placeholder");
+                    if(translations[lang][key]) el.placeholder = translations[lang][key];
+                });
+                // Set <title>
+                if(document.querySelector('title[data-key]')) {
+                    const key = document.querySelector('title[data-key]').getAttribute('data-key');
+                    if(translations[lang][key]) document.title = translations[lang][key];
+                }
+                localStorage.setItem("selectedLanguage", lang);
+            }
+        </script>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <ul class="nav-cards">
+          <li><a href="index.html" class="nav-card"><i class="fas fa-home"></i> <span data-key="nav_home">Home</span></a></li>
+          <li><a href="farmerprofile.html" class="nav-card"><i class="fas fa-user"></i> <span data-key="nav_profile">Profile</span></a></li>
+          <li><a href="recommendations.html" class="nav-card"><i class="fas fa-robot"></i> <span data-key="ai_recommendations">AI Recommendations</span></a></li>
+          <li><a href="soil-analysis.html" class="nav-card"><i class="fas fa-seedling"></i> <span data-key="soil_profile">Soil Profile</span></a></li>
+          <li><a href="disease-detection.html" class="nav-card"><i class="fas fa-bug"></i> <span data-key="disease_check">Disease Check</span></a></li>
+        </ul>
+    </nav>
+    
+    <script>
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        menuToggle.addEventListener('click', () => {
+          sidebar.classList.toggle('active');
+        });
+    </script>
+
+    <main>
+        <section class="recommendation-form">
+            <form id="diseaseForm">
+                <div class="input-group">
+                    <i class="fas fa-image"></i>
+                    <input type="file" name="cropImage" accept="image/*,video/*" required data-key-placeholder="placeholder_upload_image" placeholder="Upload image/video">
+                </div>
+
+                <div class="input-group">
+                    <i class="fas fa-leaf"></i>
+                    <input type="text" name="cropName" required data-key-placeholder="placeholder_crop_name" placeholder="Enter crop name">
+                </div>
+
+                <button type="submit" class="btn" data-key="btn_check_disease">Check Disease</button>
+            </form>
+        </section>
+
+        <section class="recommendation-results" id="diseaseResults">
+            <!-- AI results will appear here -->
+        </section>
+    </main>
+
+    <script src="matruka-ai.js"></script>
+
+    <script>
+        const form = document.getElementById('diseaseForm');
+        const results = document.getElementById('diseaseResults');
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const file = form.cropImage.files[0];
+            const cropName = form.cropName.value.trim();
+
+            if (!window.MatrukaAI) {
+                results.innerHTML = '<div class="notice"><i class="fas fa-triangle-exclamation"></i><span>AI helper is not loaded.</span></div>';
+                return;
+            }
+
+            const prompt = `Analyze this crop media for plant health. Crop name: ${cropName || 'Unknown'}.
+Return concise sections: Likely Condition, Confidence, Visible Symptoms, Immediate Farmer Actions, Treatment Options, Prevention, and When To Ask An Expert. If the media is unclear or not a plant, say that clearly. Avoid claiming certainty from one image.`;
+
+            window.MatrukaAI.showLoading(results, 'Checking crop health with Gemini vision...');
+
+            try {
+                const aiText = await window.MatrukaAI.generateText(prompt, {
+                    file: file,
+                    systemInstruction: 'You are a cautious crop disease assistant. Prioritize farmer safety and recommend local expert confirmation before chemical treatment.',
+                    maxOutputTokens: 2600,
+                    thinkingBudget: 0
+                });
+                results.innerHTML = window.MatrukaAI.renderMarkdown(aiText);
+            } catch (error) {
+                let fallback = '## Likely Condition\n- Healthy or unclear from current input\n## Immediate Actions\n- Take a clear close-up photo in daylight\n- Remove severely infected leaves only if spread is visible\n- Keep leaves dry and improve airflow\n## Treatment Options\n- Use neem-based spray for early pest pressure\n- Contact a local agriculture officer for chemical confirmation';
+                const lower = cropName.toLowerCase();
+                if (lower.includes('tomato')) {
+                    fallback = '## Likely Condition\n- Possible late blight\n## Immediate Actions\n- Avoid wet leaves\n- Remove infected leaves away from the field\n## Treatment Options\n- Copper fungicide can help when confirmed locally\n- Improve spacing and airflow';
+                } else if (lower.includes('wheat')) {
+                    fallback = '## Likely Condition\n- Possible rust\n## Immediate Actions\n- Check for orange or brown powdery spots\n- Avoid dense canopy moisture\n## Treatment Options\n- Use a locally recommended fungicide only after confirmation';
+                }
+                results.innerHTML = '<div class="notice"><i class="fas fa-circle-info"></i><span>' + window.MatrukaAI.escapeHtml(error.message) + '</span></div>' + window.MatrukaAI.renderMarkdown(fallback);
+            }
+        });
+
+        const translations = {
+            en: {
+                page_title: "Crop Disease Detection",
+                header_title: "Crop Disease Detection",
+                header_desc: "Upload crop images or videos and detect diseases using AI.",
+                back: "Go Back",
+                nav_home: "Home",
+                nav_profile: "Profile",
+                ai_recommendations: "AI Recommendations",
+                weather: "Weather",
+                soil_profile: "Soil Profile",
+                disease_check: "Disease Check",
+                nav_farmer_details: "Farmer Details",
+                placeholder_upload_image: "Upload image/video",
+                placeholder_crop_name: "Enter crop name",
+                btn_check_disease: "Check Disease",
+                disease_detected: "Disease Detected:",
+                precautions: "Precautions:",
+                treatment: "Treatment:"
+            },
+            hi: {
+                page_title: "फसल रोग पहचान",
+                header_title: "फसल रोग पहचान",
+                header_desc: "फसल की तस्वीरें या वीडियो अपलोड करें और AI से रोग पहचानें।",
+                back: "वापस जाएं",
+                nav_home: "होम",
+                nav_profile: "प्रोफ़ाइल",
+                ai_recommendations: "एआई सिफारिशें",
+                weather: "मौसम",
+                soil_profile: "मृदा प्रोफ़ाइल",
+                disease_check: "रोग जांच",
+                nav_farmer_details: "किसान विवरण",
+                placeholder_upload_image: "छवि/वीडियो अपलोड करें",
+                placeholder_crop_name: "फसल का नाम दर्ज करें",
+                btn_check_disease: "रोग जांचें",
+                disease_detected: "पहचाना गया रोग:",
+                precautions: "सावधानियाँ:",
+                treatment: "उपचार:"
+            }
+        };
+    </script>
+</body>
+</html>
+
+
+
+
+
+

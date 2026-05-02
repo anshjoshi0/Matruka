@@ -1,0 +1,325 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-key="page_title"></title>
+  <link rel="stylesheet" href="dummy.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+
+<body>
+  <header>
+    <h1 data-key="header_title"></h1>
+    <p data-key="header_desc"></p>
+    <!-- Hamburger Menu Icon -->
+    <div id="menu-toggle" class="menu-toggle">
+      <i class="fas fa-bars"></i>
+    </div>
+    <button onclick="window.history.back()" class="back-btn">
+      <i class="fas fa-arrow-left"></i> <span data-key="go_back"></span>
+    </button>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const lang = localStorage.getItem("selectedLanguage") || "en";
+        applyLanguage(lang);
+      });
+
+      function applyLanguage(lang) {
+        document.querySelectorAll("[data-key]").forEach(el => {
+          el.textContent = translations[lang][el.getAttribute("data-key")];
+        });
+        document.querySelectorAll("[data-key-placeholder]").forEach(el => {
+          const key = el.getAttribute("data-key-placeholder");
+          if (translations[lang][key]) el.placeholder = translations[lang][key];
+        });
+      }
+    </script>
+  </header>
+
+  <!-- Sidebar Navigation -->
+  <nav class="sidebar" id="sidebar">
+    <ul class="nav-cards">
+      <li><a href="index.html" class="nav-card"><i class="fas fa-home"></i> <span data-key="home"></span></a></li>
+      <li><a href="farmerprofile.html" class="nav-card"><i class="fas fa-user"></i> <span
+            data-key="nav_profile">Profile</span></a></li>
+      <li><a href="recommendations.html" class="nav-card"><i class="fas fa-robot"></i> <span
+            data-key="ai_recommendations"></span></a></li>
+      <li><a href="soil-analysis.html" class="nav-card"><i class="fas fa-seedling"></i> <span
+            data-key="soil_profile"></span></a></li>
+      <li><a href="disease-detection.html" class="nav-card"><i class="fas fa-bug"></i> <span
+            data-key="disease_check"></span></a></li>
+
+    </ul>
+  </nav>
+
+
+  <script>
+    const menuToggle = document.getElementById('menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+    });
+  </script>
+
+  <main>
+    <section class="recommendation-form">
+      <form id="aiForm">
+        <div class="input-group">
+          <i class="fas fa-seedling"></i>
+          <select name="soilType" required>
+            <option value="" data-key="select_soil"></option>
+            <option value="loamy" data-key="loamy"></option>
+            <option value="clay" data-key="clay"></option>
+            <option value="sandy" data-key="sandy"></option>
+            <option value="peaty" data-key="peaty"></option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <i class="fas fa-cloud-sun"></i>
+          <input type="text" name="weather" data-key-placeholder="weather_placeholder" required>
+        </div>
+
+        <div class="input-group">
+          <i class="fas fa-calendar-alt"></i>
+          <input type="text" name="season" data-key-placeholder="season_placeholder" required>
+        </div>
+
+        <div class="input-group">
+          <i class="fas fa-location-dot"></i>
+          <input type="text" name="location" data-key-placeholder="location_placeholder" required>
+        </div>
+
+        <div class="input-group">
+          <i class="fas fa-water"></i>
+          <input type="number" name="ph" data-key-placeholder="ph_placeholder" step="0.1" required>
+        </div>
+
+        <div class="input-group">
+          <i class="fas fa-leaf"></i>
+          <input type="text" name="previousCrop" data-key-placeholder="previous_crop_placeholder" required>
+        </div>
+
+        <button type="submit" class="btn" data-key="get_recommendations"></button>
+      </form>
+    </section>
+
+    <section class="recommendation-results" id="results">
+      <!-- Results will display here -->
+    </section>
+  </main>
+  <script src="matruka-ai.js"></script>
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBpv6VRIxdC9CMy3PpvK1S12QX3Rg2xkxU",
+      authDomain: "matruka-2025.firebaseapp.com",
+      databaseURL: "https://matruka-2025-default-rtdb.firebaseio.com",
+      projectId: "matruka-2025",
+      storageBucket: "matruka-2025.firebasestorage.app",
+      messagingSenderId: "944698526913",
+      appId: "1:944698526913:web:1b1c095335dc98e1291840",
+      measurementId: "G-GXH6E367CF"
+    };
+    let db = null;
+    if (window.firebase) {
+      const app = firebase.initializeApp(firebaseConfig);
+      db = firebase.firestore();
+    } else {
+      console.warn('Firebase SDK unavailable; continuing without profile autofill.');
+    }
+
+    const form = document.getElementById('aiForm');
+    const results = document.getElementById('results');
+
+
+    // Auto-fill form from Firebase
+    async function fillForm(farmerId) {
+      if (!db) return;
+      try {
+        const doc = await db.collection('farmers').doc(farmerId).get();
+        if (doc.exists) {
+          const data = doc.data();
+          form.soilType.value = data.soilType || '';
+          form.ph.value = data.ph || '';
+          form.previousCrop.value = data.previousCrop || '';
+        }
+      } catch (err) {
+        console.error('Error fetching farmer data:', err);
+      }
+    }
+    const savedFarmerId = localStorage.getItem('matrukaFarmerId');
+    if (savedFarmerId) fillForm(savedFarmerId);
+
+    // Auto-fill weather, location, and season using OpenWeather API
+   document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById('aiForm');
+
+  fetchWeatherAndLocation(form);
+});
+
+async function fetchWeatherAndLocation(form) {
+  try {
+    if (navigator.geolocation) {
+      console.log("Getting location...");
+
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        console.log("Location received:", position);
+
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+
+        const res = await fetch("/api/weather", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ lat, lon })
+        });
+
+        const data = await res.json();
+
+        const weatherDescription = data.weather[0].description;
+        const temp = data.main.temp;
+        const city = data.name;
+
+        const month = new Date().getMonth() + 1;
+        let season = '';
+        if ([12, 1, 2].includes(month)) season = 'Winter';
+        else if ([3, 4, 5].includes(month)) season = 'Spring';
+        else if ([6, 7, 8].includes(month)) season = 'Summer';
+        else season = 'Autumn';
+
+        form.weather.value = `${weatherDescription}, ${temp} deg C`;
+        form.season.value = season;
+        form.location.value = city;
+
+      }, (err) => {
+        console.error("Geolocation error:", err);
+      });
+    }
+  } catch (err) {
+    console.error('Weather error:', err);
+  }
+}
+    // Gemini-powered form submission
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const formData = {
+        soilType: form.soilType.value,
+        weather: form.weather.value,
+        season: form.season.value,
+        location: form.location.value,
+        ph: parseFloat(form.ph.value),
+        previousCrop: form.previousCrop.value
+      };
+
+      const prompt = `You are Matruka, an agronomy assistant for Indian farmers. Create practical crop recommendations from this farm data: ${JSON.stringify(formData)}.
+Start directly with these headings and do not add a greeting: Recommended Crops, Fertilizer Plan, Pest/Disease Watch, Irrigation Notes, Expected Yield, Final Safety Note. Give 3 to 5 bullet points per section. Keep advice farmer-friendly, region-aware, and mention that local agronomist guidance should be used for final chemical decisions.`;
+
+      if (!window.MatrukaAI) {
+        results.innerHTML = '<div class="notice"><i class="fas fa-triangle-exclamation"></i><span>AI helper is not loaded.</span></div>';
+        return;
+      }
+
+      window.MatrukaAI.showLoading(results, 'Generating AI crop plan with Gemini...');
+
+      try {
+        const aiText = await window.MatrukaAI.generateText(prompt, {
+          systemInstruction: 'You are a careful agricultural advisor. Do not invent exact government guarantees. Use safe, practical crop advice.',
+          maxOutputTokens: 3200,
+          thinkingBudget: 0
+        });
+        results.innerHTML = window.MatrukaAI.renderMarkdown(aiText);
+      } catch (error) {
+        const fallback = window.MatrukaAI.fallbackCropAdvice(formData);
+        results.innerHTML = '<div class="notice"><i class="fas fa-circle-info"></i><span>' + window.MatrukaAI.escapeHtml(error.message) + '</span></div>' + window.MatrukaAI.renderMarkdown(fallback);
+      }
+    });
+  </script>
+  <script>
+    // Translation dictionary
+    const translations = {
+      en: {
+        page_title: "AI Crop Recommendations",
+        header_title: "AI Crop Recommendations",
+        header_desc: "Get personalized advice for crops, fertilizers, pesticides, and expected yield based on your farm's conditions.",
+        go_back: "Go Back",
+        home: "Home",
+        nav_profile: "Profile",
+        ai_recommendations: "AI Recommendations",
+        soil_profile: "Soil Profile",
+        disease_check: "Disease Check",
+        select_soil: "Select Soil Type",
+        loamy: "Loamy",
+        clay: "Clay",
+        sandy: "Sandy",
+        peaty: "Peaty",
+        weather_placeholder: "Weather conditions",
+        season_placeholder: "Season",
+        location_placeholder: "Location",
+        ph_placeholder: "Soil pH",
+        previous_crop_placeholder: "Previous Crop",
+        get_recommendations: "Get Recommendations"
+      },
+      hi: {
+        page_title: "एआई फसल सिफारिशें",
+        header_title: "एआई फसल सिफारिशें",
+        header_desc: "आपके खेत की स्थिति के आधार पर फसल, उर्वरक, कीटनाशक और अपेक्षित उपज के लिए व्यक्तिगत सलाह प्राप्त करें।",
+        go_back: "वापस जाएं",
+        home: "होम",
+        nav_profile: "प्रोफ़ाइल",
+        ai_recommendations: "एआई सिफारिशें",
+        soil_profile: "मृदा प्रोफ़ाइल",
+        disease_check: "रोग जांच",
+        select_soil: "मिट्टी का प्रकार चुनें",
+        loamy: "दोमट",
+        clay: "मिट्टी",
+        sandy: "रेतीली",
+        peaty: "पीटी",
+        weather_placeholder: "मौसम की स्थिति",
+        season_placeholder: "मौसम",
+        location_placeholder: "स्थान",
+        ph_placeholder: "मृदा पीएच",
+        previous_crop_placeholder: "पिछली फसल",
+        get_recommendations: "सिफारिशें प्राप्त करें"
+      }
+    };
+
+    function setLanguage(lang) {
+      // Update all text elements
+      document.querySelectorAll('[data-key]').forEach(el => {
+        const key = el.getAttribute('data-key');
+        if (translations[lang][key]) el.textContent = translations[lang][key];
+      });
+
+      // Update input placeholders
+      document.querySelectorAll('[data-key-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-key-placeholder');
+        if (translations[lang][key]) el.placeholder = translations[lang][key];
+      });
+
+      // Update title
+      const titleEl = document.querySelector('title[data-key]');
+      if (titleEl && translations[lang][titleEl.getAttribute("data-key")]) {
+        document.title = translations[lang][titleEl.getAttribute("data-key")];
+      }
+
+      // Save selected language to localStorage
+      localStorage.setItem("selectedLanguage", lang);
+    }
+
+    // Initialize language
+    document.addEventListener("DOMContentLoaded", () => {
+      setLanguage(localStorage.getItem("selectedLanguage") || 'en');
+    });
+  </script>
+</body>
+
+</html>

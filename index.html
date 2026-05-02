@@ -1,0 +1,271 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-key="hero_title"></title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="dummy.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+<!-- Header -->
+<header class="header">
+  <div class="logo">
+    <i class="fas fa-seedling fa-2x"></i> <span data-key-placeholder="app_name">Matruka</span>
+  </div>
+  <div class="lang-switch">
+    <button id="en-btn" class="btn-small">EN</button>
+    <button id="hi-btn" class="btn-small">हिं</button>
+  </div>
+  <div class="menu-toggle" id="menu-toggle">
+    <i class="fas fa-bars"></i>
+  </div>
+    <!-- Weather Card in Header -->
+    <div id="weather-card">
+      <i id="weather-icon" class="fas fa-sun fa-2x"></i>
+      <div>
+        <p id="weather-temp">-- deg C</p>
+        <p id="weather-desc" data-key-placeholder="weather_loading">Loading...</p>
+      </div>
+    </div>
+  <!--language-->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const lang = localStorage.getItem("selectedLanguage") || "en"; 
+      applyLanguage(lang);
+    });
+    
+    function applyLanguage(lang) {
+      document.querySelectorAll("[data-key]").forEach(el => {
+        el.textContent = translations[lang][el.getAttribute("data-key")];
+      });
+    }
+  </script>
+
+<script>
+  // OpenWeather
+  
+  function fetchWeather(lat, lon) {
+  fetch("/api/weather", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ lat, lon })
+  })
+   .then(res => res.json())
+   .then(data => {
+     document.getElementById("weather-temp").textContent = `${Math.round(data.main.temp)} deg C`;
+     document.getElementById("weather-desc").textContent = data.weather[0].description;
+  
+     // Set weather icon
+     const icon = document.getElementById("weather-icon");
+     const weather = data.weather[0].main.toLowerCase();
+     if (weather.includes("cloud")) icon.className = "fas fa-cloud fa-2x";
+     else if (weather.includes("rain")) icon.className = "fas fa-cloud-showers-heavy fa-2x";
+     else if (weather.includes("clear")) icon.className = "fas fa-sun fa-2x";
+     else if (weather.includes("snow")) icon.className = "fas fa-snowflake fa-2x";
+     else icon.className = "fas fa-smog fa-2x";
+   })
+   .catch(err => {
+     document.getElementById("weather-desc").textContent = "Unable to fetch";
+     console.error("Weather error:", err);
+   });
+  }
+  
+  // Get user's location
+  if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(
+   pos => fetchWeather(pos.coords.latitude, pos.coords.longitude),
+   err => {
+     console.error("Location error:", err);
+     document.getElementById("weather-desc").textContent = "Location blocked";
+   }
+  );
+  } else {
+  document.getElementById("weather-desc").textContent = "No location support";
+  }
+  </script>
+</header>
+
+<!-- Sidebar Navigation -->
+<nav class="sidebar" id="sidebar">
+    <ul class="nav-cards">
+      <li><a href="index.html" class="nav-card"><i class="fas fa-home"></i> <span data-key-placeholder="home"></span></a></li>
+      <li><a href="signup.html" class="nav-card"><i class="fas fa-robot"></i> <span data-key-placeholder="ai_recommendations"></span></a></li>
+      <li><a href="signup.html" class="nav-card"><i class="fas fa-cloud-sun"></i> <span data-key-placeholder="weather"></span></a></li>
+      <li><a href="signup.html" class="nav-card"><i class="fas fa-seedling"></i> <span data-key-placeholder="soil_profile"></span></a></li>
+      <li><a href="signup.html" class="nav-card"><i class="fas fa-bug"></i> <span data-key-placeholder="disease_check"></span></a></li>
+      <li><a href="signup.html" class="nav-card"><i class="fas fa-user-plus"></i> <span data-key-placeholder="signup"></span></a></li>
+      <li><a href="login.html" class="nav-card"><i class="fas fa-sign-in-alt"></i> <span data-key-placeholder="login"></span></a></li>
+    </ul>
+</nav>
+
+<script>
+  const menuToggle = document.getElementById('menu-toggle');
+  const sidebar = document.getElementById('sidebar');
+  menuToggle.addEventListener('click', () => {
+    sidebar.classList.toggle('active');
+  });
+</script>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-text">
+    <h1 data-key="hero_title"></h1>
+    <p data-key="hero_desc"></p>
+    <a href="signup.html" class="btn-primary" data-key="get_started_btn"></a>
+  </div>
+  <div class="hero-illustration">
+    <i class="fas fa-seedling fa-5x"></i>
+  </div>
+</section>
+
+<!-- Section 1: Farm Management --> 
+<section class="card-section card-section-top ">
+  <h1 data-key="farm_management_title" style="text-align:center; margin-bottom:2rem;"></h1>
+  <div class="cards-grid">
+    <div class="card">
+      <img src="https://images.pexels.com/photos/129574/pexels-photo-129574.jpeg" alt="AI Crop Recommendations">
+      <h3 data-key="ai_card_title"></h3>
+      <p data-key="ai_card_desc"></p>
+      <a href="signup.html" class="btn" data-key="get_started_btn"></a>
+    </div>
+    <div class="card">
+      <img src="https://images.pexels.com/photos/7944397/pexels-photo-7944397.jpeg" alt="Upload Soil Profile">
+      <h3 data-key="soil_card_title"></h3>
+      <p data-key="soil_card_desc"></p>
+      <a href="signup.html" class="btn" data-key="get_started_btn"></a>
+    </div>
+    <div class="card">
+      <img src="https://images.pexels.com/photos/7944396/pexels-photo-7944396.jpeg" alt="Crop Disease Check">
+      <h3 data-key="disease_card_title"></h3>
+      <p data-key="disease_card_desc"></p>
+      <a href="signup.html" class="btn" data-key="get_started_btn"></a>
+    </div>
+  </div>
+</section>
+
+<!-- Section 2: Market & Schemes -->
+<section class="card-section card-section-two">
+  <h1 data-key="market_schemes_title" style="text-align:center; margin-bottom:2rem;"></h1>
+  <div class="cards-grid">
+    <div class="card">
+      <img src="https://images.pexels.com/photos/32975170/pexels-photo-32975170.jpeg" alt="Government Schemes">
+      <h3 data-key="government_schemes_card_title"></h3>
+      <p data-key="government_schemes_card_desc"></p>
+      <a href="signup.html" class="btn" data-key="get_started_btn"></a>
+    </div>
+    <div class="card">
+      <img src="https://images.pexels.com/photos/30898070/pexels-photo-30898070.jpeg" alt="Crop Prices">
+      <h3 data-key="crop_prices_card_title"></h3>
+      <p data-key="crop_prices_card_desc"></p>
+      <a href="signup.html" class="btn" data-key="get_started_btn"></a>
+    </div>
+    <div class="card">
+      <img src="https://images.pexels.com/photos/5864750/pexels-photo-5864750.jpeg" alt="Mandi Near Me">
+      <h3 data-key="near_mandi_card_title"></h3>
+      <p data-key="near_mandi_card_desc"></p>
+      <a href="https://www.google.com/maps/search/mandi+near+me" target="_blank" rel="noopener noreferrer" class="btn" data-key="get_started_btn"></a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <p> 2025 Matruka | AI for Smarter Farming</p>
+  <div class="social-icons">
+    <a href="https://github.com/anshjoshi0" target="_blank" rel="noopener noreferrer">
+      <i class="fab fa-github"></i>
+    </a>
+    <a href="https://X.com/anshjoshi_" target="_blank" rel="noopener noreferrer">
+      <i class="fab fa-x-twitter"></i>
+    </a>
+    <a href="https://www.linkedin.com/in/ansh-joshi-518b69310" target="_blank" rel="noopener noreferrer">
+      <i class="fab fa-linkedin"></i>
+    </a>
+  </div>
+</footer>
+
+<script>
+  const translations = {
+    en: {
+      app_name: "Matruka",
+      home: "Home",
+      ai_recommendations: "AI Recommendations",
+      weather: "Weather",
+      soil_profile: "Soil Profile",
+      disease_check: "Disease Check",
+      signup: "Sign Up",
+      login: "Login",
+      hero_title: "AI-Powered Farming Made Simple",
+      hero_desc: "Smarter crop recommendations, disease detection, and farm insights tailored for you.",
+      get_started_btn: "Get Started",
+      farm_management_title: "FARM MANAGEMENT",
+      ai_card_title: "AI Crop Recommendations",
+      ai_card_desc: "Discover the best crops for your soil and climate using AI-driven insights.",
+      soil_card_title: "Upload Soil Profile",
+      soil_card_desc: "Submit soil details for better recommendations.",
+      disease_card_title: "Crop Disease Detection",
+      disease_card_desc: "Upload plant images and let our AI detect diseases.",
+      market_schemes_title: "MARKET & SCHEMES",
+      government_schemes_card_title: "GOVERNMENT SCHEMES",
+      government_schemes_card_desc: "Government subsidies and schemes to support farming.",
+      crop_prices_card_title: "CROP PRICES",
+      crop_prices_card_desc: "Check current market rates and prices.",
+      near_mandi_card_title: "NEAR MANDI",
+      near_mandi_card_desc: "Locate the nearest mandi to sell your crops.",
+      footer_text: "&copy; 2025 Matruka | AI for Smarter Farming"
+    },
+    hi: {
+      app_name: "Matruka",
+      home: "होम",
+      ai_recommendations: "एआई सिफारिशें",
+      weather: "मौसम",
+      soil_profile: "मृदा प्रोफ़ाइल",
+      disease_check: "रोग जांच",
+      signup: "साइन अप",
+      login: "लॉगिन",
+      hero_title: "एआई-सक्षम खेती सरल बनाई गई",
+      hero_desc: "आपकी फसल की सिफारिशें, रोग पहचान और खेत की जानकारी अब आसान और स्मार्ट।",
+      get_started_btn: "शुरू करें",
+      farm_management_title: "खेत प्रबंधन",
+      ai_card_title: "एआई फसल सिफारिशें",
+      ai_card_desc: "अपने मिट्टी और जलवायु के लिए एआई आधारित सिफारिशें देखें।",
+      soil_card_title: "मृदा प्रोफ़ाइल अपलोड करें",
+      soil_card_desc: "गहरी सिफारिशों के लिए मिट्टी का विवरण जमा करें।",
+      disease_card_title: "फसल रोग जांचें",
+      disease_card_desc: "पौधों की तस्वीरें अपलोड करें और हमारा एआई तुरंत रोग पहचान करेगा।",
+      market_schemes_title: "बाजार और योजनाएँ",
+      government_schemes_card_title: "सरकारी योजनाएँ",
+      government_schemes_card_desc: "कृषि को समर्थन देने के लिए सरकारी सब्सिडी और योजनाएँ।",
+      crop_prices_card_title: "फसल की कीमतें",
+      crop_prices_card_desc: "वर्तमान बाजार दरें और कीमतें देखें।",
+      near_mandi_card_title: "निकट मंडी",
+      near_mandi_card_desc: "अपनी फसल बेचने के लिए सबसे पास की मंडी ढूंढें।",
+      footer_text: "© 2025 Matruka | स्मार्ट खेती के लिए एआई"
+    }
+  };
+
+  function setLanguage(lang) {
+    document.querySelectorAll('[data-key], [data-key-placeholder]').forEach(el => {
+      const key = el.getAttribute('data-key') || el.getAttribute('data-key-placeholder');
+      if(translations[lang][key]) {
+        el.innerText = translations[lang][key];
+      }
+    });
+    localStorage.setItem("selectedLanguage", lang);
+  }
+
+  document.getElementById('en-btn').addEventListener('click', () => setLanguage('en'));
+  document.getElementById('hi-btn').addEventListener('click', () => setLanguage('hi'));
+
+  // Set default language from localStorage or English
+  setLanguage(localStorage.getItem("selectedLanguage") || 'en');
+</script>
+</body>
+</html>
+
+

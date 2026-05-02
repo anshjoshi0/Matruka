@@ -1,0 +1,190 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-key="farmer_details_title">Farmer Details</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="logo"><i class="fas fa-seedling fa-2x"></i> <span data-key="app_name">Matruka</span></div>
+    <div class="menu-toggle" id="menu-toggle">
+      <i class="fas fa-bars"></i>
+    </div>
+    <button onclick="window.history.back()" class="back-btn" data-key="back"><i class="fas fa-arrow-left"></i> Go Back</button>
+    
+    <!--language-->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const lang = localStorage.getItem("selectedLanguage") || "en"; 
+        applyLanguage(lang);
+      });
+      
+      function applyLanguage(lang) {
+        document.querySelectorAll("[data-key]").forEach(el => {
+          if(translations[lang][el.getAttribute("data-key")]) {
+            el.textContent = translations[lang][el.getAttribute("data-key")];
+          }
+        });
+      }
+
+      const translations = {
+        en: {
+          farmer_details_title: "Farmer Details",
+          app_name: "Matruka",
+          back: "Go Back",
+          farmer_details_heading: "Farmer Details Form",
+          farmer_details_subtext: "Provide your farm information for AI recommendations.",
+          label_soil_type: "Soil Type",
+          label_weather_conditions: "Weather Conditions",
+          label_field_type: "Field Type",
+          label_yield: "Yield",
+          label_crop_rotation: "Crop Rotation",
+          label_location: "Location",
+          label_additional_info: "Additional Info",
+          btn_submit_details: "Submit Details",
+          home: "Home",
+          nav_profile: "Profile",
+          ai_recommendations: "AI Recommendations",
+          soil_profile: "Soil Profile",
+          disease_check: "Disease Check"
+        },
+       hi: {
+          farmer_details_title: "किसान विवरण",
+          app_name: "मातृका",
+          back: "वापस जाएं",
+          farmer_details_heading: "किसान विवरण फ़ॉर्म",
+          farmer_details_subtext: "एआई सिफारिशों के लिए अपने खेत की जानकारी प्रदान करें।",
+          label_soil_type: "मृदा प्रकार",
+          label_weather_conditions: "मौसम की स्थिति",
+          label_field_type: "फ़ील्ड प्रकार",
+          label_yield: "उपज",
+          label_crop_rotation: "फसल रोटेशन",
+          label_location: "स्थान",
+          label_additional_info: "अतिरिक्त जानकारी",
+          btn_submit_details: "विवरण सबमिट करें",
+          home: "होम",
+          nav_profile: "प्रोफ़ाइल",
+          ai_recommendations: "एआई सिफारिशें",
+          soil_profile: "मृदा प्रोफ़ाइल",
+          disease_check: "रोग जांच"
+        }
+      };
+    </script>
+  </header>
+
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <ul class="nav-cards">
+      <li><a href="index.html" class="nav-card"><i class="fas fa-home"></i> <span data-key="home">Home</span></a></li>
+      <li><a href="farmerprofile.html" class="nav-card"><i class="fas fa-user"></i> <span data-key="nav_profile">Profile</span></a></li>
+      <li><a href="recommendations.html" class="nav-card"><i class="fas fa-robot"></i> <span data-key="ai_recommendations">AI Recommendations</span></a></li>
+      <li><a href="soil-analysis.html" class="nav-card"><i class="fas fa-seedling"></i> <span data-key="soil_profile">Soil Profile</span></a></li>
+      <li><a href="disease-detection.html" class="nav-card"><i class="fas fa-bug"></i> <span data-key="disease_check">Disease Check</span></a></li>
+    </ul>
+  </nav>
+
+  <!-- Farmer Details Form -->
+  <main class="form-container">
+    <h1><i class="fas fa-tractor"></i> <span data-key="farmer_details_heading">Farmer Details Form</span></h1>
+    <p data-key="farmer_details_subtext">Provide your farm information for AI recommendations.</p>
+
+    <form id="farmerForm" class="farmer-form">
+      <label><i class="fas fa-seedling"></i> <span data-key="label_soil_type">Soil Type</span></label>
+      <input type="text" name="soilType" data-key-placeholder="e.g., Clay, Sandy, Loam" required>
+
+      <label><i class="fas fa-cloud-sun"></i> <span data-key="label_weather_conditions">Weather Conditions</span></label>
+      <input type="text" name="weather" data-key-placeholder="e.g., Tropical, Dry, Humid" required>
+
+      <label><i class="fas fa-leaf"></i> <span data-key="label_field_type">Field Type</span></label>
+      <input type="text" name="fieldType" data-key-placeholder="e.g., Irrigated, Rain-fed" required>
+
+      <label><i class="fas fa-chart-line"></i> <span data-key="label_yield">Yield</span></label>
+      <input type="number" name="yield" data-key-placeholder="e.g., 2000 kg" required>
+
+      <label><i class="fas fa-sync-alt"></i> <span data-key="label_crop_rotation">Crop Rotation</span></label>
+      <input type="text" name="cropRotation" data-key-placeholder="e.g., Wheat -&gt; Maize -&gt; Rice" required>
+      
+      <label><i class="fas fa-map-marker-alt"></i> <span data-key="label_location">Location</span></label>
+      <input type="text" name="location" data-key-placeholder="Field Location" required>
+
+      <label><i class="fas fa-info-circle"></i> <span data-key="label_additional_info">Additional Info</span></label>
+      <textarea name="additionalInfo" data-key-placeholder="Add any other field details..."></textarea>
+      
+      <button type="submit" class="btn-submit"><i class="fas fa-paper-plane"></i> <span data-key="btn_submit_details">Submit Details</span></button>
+    </form>
+  </main>
+
+  <!-- Firebase SDKs & JS -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  
+    const firebaseConfig = {
+      apiKey: "AIzaSyBpv6VRIxdC9CMy3PpvK1S12QX3Rg2xkxU",
+      authDomain: "matruka-2025.firebaseapp.com",
+      databaseURL: "https://matruka-2025-default-rtdb.firebaseio.com",
+      projectId: "matruka-2025",
+      storageBucket: "matruka-2025.firebasestorage.app",
+      messagingSenderId: "944698526913",
+      appId: "1:944698526913:web:1b1c095335dc98e1291840",
+      measurementId: "G-GXH6E367CF"
+    };
+  
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+  
+    const menuToggle = document.getElementById('menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+    });
+  
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        alert("You must be logged in to submit farmer details.");
+        window.location.href = "login.html";
+        return;
+      }
+  
+      const farmerForm = document.getElementById('farmerForm');
+      farmerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+  
+        const formData = {
+          soilType: farmerForm.soilType.value,
+          weather: farmerForm.weather.value,
+          fieldType: farmerForm.fieldType.value,
+          yield: farmerForm.yield.value,
+          cropRotation: farmerForm.cropRotation.value,
+          location: farmerForm.location.value,
+          additionalInfo: farmerForm.additionalInfo.value,
+          timestamp: new Date(),
+          uid: user.uid,
+          name: user.displayName || "",
+          email: user.email || ""
+        };
+  
+        try {
+          await setDoc(doc(db, "farmers", user.uid), formData);
+          alert("Farmer details saved successfully!");
+          farmerForm.reset();
+          window.location.href = "dummyindex.html";
+        } catch (error) {
+          console.error("Error saving farmer details:", error);
+          alert("Error saving details. Check console for full message.");
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+

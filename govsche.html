@@ -1,0 +1,171 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-key="gov_schemes_title">Government Schemes</title>
+  <link rel="stylesheet" href="dummy.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  
+  <!-- Header -->
+  <header class="navbar">
+    <div class="logo">
+      <i class="fas fa-seedling fa-2x"></i> 
+      <span class="brand-name" data-key="app_name">Matruka</span>
+    </div>
+    <!-- Hamburger Menu Icon -->
+    <div id="menu-toggle" class="menu-toggle">
+      <i class="fas fa-bars"></i>
+    </div>
+    <button onclick="window.history.back()" class="back-btn" data-key="back"><i class="fas fa-arrow-left"></i> Go Back</button>
+  </header>
+
+  <!-- Sidebar Navigation -->
+  <nav class="sidebar" id="sidebar">
+    <ul class="nav-cards">
+      <li><a href="index.html" class="nav-card"><i class="fas fa-home"></i> <span data-key="nav_home"></span></a></li>
+      <li><a href="farmerprofile.html" class="nav-card"><i class="fas fa-user"></i> <span data-key="nav_profile"></span></a></li>
+      <li><a href="recommendations.html" class="nav-card"><i class="fas fa-robot"></i> <span data-key="ai_recommendations"></span></a></li>
+      <li><a href="soil-analysis.html" class="nav-card"><i class="fas fa-seedling"></i> <span data-key="soil_profile"></span></a></li>
+      <li><a href="disease-detection.html" class="nav-card"><i class="fas fa-bug"></i> <span data-key="disease_check"></span></a></li>
+    </ul>
+  </nav>
+
+  <script>
+    const menuToggle = document.getElementById('menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+    });
+
+    // Translation dictionary
+    const translations = {
+      en: {
+        gov_schemes_title: "Government Schemes",
+        app_name: "Matruka",
+        back: "Go Back",
+        nav_home: "Home",
+        nav_profile: "Profile",
+        ai_recommendations: "AI Recommendations",
+        soil_profile: "Soil Profile",
+        disease_check: "Disease Check",
+        gov_schemes_heading: "Government Schemes for Farmers",
+        gov_schemes_desc: "Explore various schemes to support farming, crop insurance, loans, and subsidies.",
+        scheme_pm_kisan: "PM Kisan",
+        scheme_pm_kisan_desc: "Income support scheme for farmers.",
+        scheme_pmfb_y: "PMFBY",
+        scheme_pmfb_y_desc: "Crop insurance scheme.",
+        scheme_pmksy: "PMKSY",
+        scheme_pmksy_desc: "Mission for irrigation and water management.",
+        scheme_soil_health: "Soil Health Card",
+        scheme_soil_health_desc: "Monitor soil nutrients and health.",
+        scheme_kcc: "Kisan Credit Card",
+        scheme_kcc_desc: "Credit facility for farmers.",
+        scheme_rkvy: "RKVY",
+        scheme_rkvy_desc: "Agriculture development scheme.",
+        apply_here: "Apply Here"
+      },
+      hi: {
+        gov_schemes_title: "सरकारी योजनाएँ",
+        app_name: "मातृका",
+        back: "वापस जाएं",
+        nav_home: "होम",
+        nav_profile: "प्रोफ़ाइल",
+        ai_recommendations: "एआई सिफारिशें",
+        soil_profile: "मृदा प्रोफ़ाइल",
+        disease_check: "रोग जांच",
+        gov_schemes_heading: "किसानों के लिए सरकारी योजनाएँ",
+        gov_schemes_desc: "खेती, फसल बीमा, ऋण और अनुदान के लिए विभिन्न योजनाएँ देखें।",
+        scheme_pm_kisan: "पीएम किसान",
+        scheme_pm_kisan_desc: "किसानों के लिए आय समर्थन योजना।",
+        scheme_pmfb_y: "PMFBY",
+        scheme_pmfb_y_desc: "फसल बीमा योजना।",
+        scheme_pmksy: "PMKSY",
+        scheme_pmksy_desc: "सिंचाई और जल प्रबंधन के लिए मिशन।",
+        scheme_soil_health: "मृदा स्वास्थ्य कार्ड",
+        scheme_soil_health_desc: "मृदा पोषक तत्व और स्वास्थ्य की निगरानी।",
+        scheme_kcc: "किसान क्रेडिट कार्ड",
+        scheme_kcc_desc: "किसानों के लिए ऋण सुविधा।",
+        scheme_rkvy: "RKVY",
+        scheme_rkvy_desc: "कृषि विकास योजना।",
+        apply_here: "यहाँ आवेदन करें"
+      }
+    };
+
+    // Apply language from localStorage (so it works with button on index.html)
+    document.addEventListener("DOMContentLoaded", () => {
+      const lang = localStorage.getItem("selectedLanguage") || "en";
+      applyLanguage(lang);
+    });
+
+    function applyLanguage(lang) {
+      document.querySelectorAll("[data-key]").forEach(el => {
+        const key = el.getAttribute("data-key");
+        if(translations[lang][key]) el.textContent = translations[lang][key];
+      });
+      // Update document title
+      const titleEl = document.querySelector('title[data-key]');
+      if(titleEl && translations[lang][titleEl.getAttribute("data-key")]) {
+        document.title = translations[lang][titleEl.getAttribute("data-key")];
+      }
+    }
+  </script>
+
+  <!-- Government Schemes -->
+  <section class="auth-container">
+    <div class="auth-card">
+      <h2><i class="fas fa-landmark"></i> <span data-key="gov_schemes_heading"></span></h2>
+      <p data-key="gov_schemes_desc"></p>
+      
+      <ul class="scheme-list">
+        <li>
+          <i class="fas fa-rupee-sign"></i> 
+          <strong data-key="scheme_pm_kisan"></strong> - <span data-key="scheme_pm_kisan_desc"></span><br>
+          <div class="btn-container">
+            <a href="https://pmkisan.gov.in/" target="_blank" class="apply-btn" data-key="apply_here"></a>
+          </div>
+        </li>
+        <li>
+          <i class="fas fa-seedling"></i> 
+          <strong data-key="scheme_pmfb_y"></strong> - <span data-key="scheme_pmfb_y_desc"></span><br>
+          <div class="btn-container">
+            <a href="https://pmfby.gov.in/" target="_blank" class="apply-btn" data-key="apply_here"></a>
+          </div>
+        </li>
+        <li>
+          <i class="fas fa-tractor"></i> 
+          <strong data-key="scheme_pmksy"></strong> - <span data-key="scheme_pmksy_desc"></span><br>
+          <div class="btn-container">
+            <a href="https://pmksy.gov.in/" target="_blank" class="apply-btn" data-key="apply_here"></a>
+          </div>
+        </li>
+        <li>
+          <i class="fas fa-leaf"></i> 
+          <strong data-key="scheme_soil_health"></strong> - <span data-key="scheme_soil_health_desc"></span><br>
+          <div class="btn-container">
+            <a href="https://soilhealth.dac.gov.in/" target="_blank" class="apply-btn" data-key="apply_here"></a>
+          </div>
+        </li>
+        <li>
+          <i class="fas fa-hand-holding-heart"></i> 
+          <strong data-key="scheme_kcc"></strong> - <span data-key="scheme_kcc_desc"></span><br>
+          <div class="btn-container">
+            <a href="https://www.myscheme.gov.in/schemes/kcc" target="_blank" class="apply-btn" data-key="apply_here"></a>
+          </div>
+        </li>
+        <li>
+          <i class="fas fa-industry"></i> 
+          <strong data-key="scheme_rkvy"></strong> - <span data-key="scheme_rkvy_desc"></span><br>
+          <div class="btn-container">
+            <a href="https://rkvy.da.gov.in/" target="_blank" class="apply-btn" data-key="apply_here"></a>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+</body>
+</html>
+

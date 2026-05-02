@@ -1,0 +1,150 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-key="profile_title">Profile</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script type="module" src="profile.js" defer></script>
+</head>
+<body>
+  
+  <!-- Header -->
+  <header class="navbar">
+    <div class="logo">
+      <i class="fas fa-seedling fa-2x"></i> 
+      <span class="brand-name" data-key="app_name">Matruka</span>
+    </div>
+    <!-- Hamburger Menu Icon -->
+    <div id="menu-toggle" class="menu-toggle">
+      <i class="fas fa-bars"></i>
+    </div>
+    <button onclick="window.history.back()" class="back-btn" data-key="back"><i class="fas fa-arrow-left"></i> Go Back</button>
+  </header>
+
+  <!-- Sidebar Navigation -->
+  <nav class="sidebar" id="sidebar">
+    <ul class="nav-cards">
+      <li><a href="index.html" class="nav-card"><i class="fas fa-home"></i> <span data-key="home">Home</span></a></li>
+      <li><a href="farmerprofile.html" class="nav-card"><i class="fas fa-user"></i> <span data-key="nav_profile">Profile</span></a></li>
+      <li><a href="recommendations.html" class="nav-card"><i class="fas fa-robot"></i> <span data-key="ai_recommendations">AI Recommendations</span></a></li>
+      <li><a href="soil-analysis.html" class="nav-card"><i class="fas fa-seedling"></i> <span data-key="soil_profile">Soil Profile</span></a></li>
+      <li><a href="disease-detection.html" class="nav-card"><i class="fas fa-bug"></i> <span data-key="disease_check">Disease Check</span></a></li>
+    </ul>
+  </nav>
+
+  <script>
+    // Sidebar toggle
+    const menuToggle = document.getElementById('menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+    });
+
+    // Language loading
+    document.addEventListener("DOMContentLoaded", () => {
+      const lang = localStorage.getItem("selectedLanguage") || "en"; 
+      applyLanguage(lang);
+    });
+
+    function applyLanguage(lang) {
+      if (typeof translations === "undefined") return; // avoid error if translations.js not loaded
+      document.querySelectorAll("[data-key]").forEach(el => {
+        const key = el.getAttribute("data-key");
+        if (translations[lang] && translations[lang][key]) {
+          el.textContent = translations[lang][key];
+        }
+      });
+    }
+
+     const translations = {
+      en: {
+        profile_title: "Profile",
+        app_name: "Matruka",
+        back: "Go Back",
+        home: "Home",
+        nav_profile: "Profile",
+        ai_recommendations: "AI Recommendations",
+        soil_profile: "Soil Profile",
+        disease_check: "Disease Check",
+        profile_heading: "Profile",
+        label_full_name: "Full Name",
+        label_email: "Email",
+        label_location: "Location",
+        label_soil_type: "Soil Type",
+        label_yield: "Yield",
+        label_crop_rotation: "Crop Rotation",
+        btn_go_home: "Go Home",
+        btn_logout: "Logout",
+        loading: "Loading..."
+      },
+     hi: {
+        profile_title: "प्रोफ़ाइल",
+        app_name: "मातृका",
+        back: "वापस जाएं",
+        home: "होम",
+        nav_profile: "प्रोफ़ाइल",
+        ai_recommendations: "एआई सिफारिशें",
+        soil_profile: "मृदा प्रोफ़ाइल",
+        disease_check: "रोग जांच",
+        profile_heading: "प्रोफ़ाइल",
+        label_full_name: "पूरा नाम",
+        label_email: "ईमेल",
+        label_location: "स्थान",
+        label_soil_type: "मृदा प्रकार",
+        label_yield: "उपज",
+        label_crop_rotation: "फसल रोटेशन",
+        btn_go_home: "होम जाएँ",
+        btn_logout: "लॉग आउट",
+        loading: "लोड हो रहा है..."
+      }
+    };
+
+  </script>
+
+  <!-- Profile Card -->
+  <section class="auth-container">
+    <div class="auth-card">
+      <h2><i class="fas fa-user-circle"></i> <span data-key="profile_heading">Profile</span></h2>
+
+      <div class="form-group">
+        <label><i class="fas fa-user"></i> <span data-key="label_full_name">Full Name</span></label>
+        <p id="farmerName" class="profile-field" data-key="loading">Loading...</p>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-envelope"></i> <span data-key="label_email">Email</span></label>
+        <p id="farmerEmail" class="profile-field" data-key="loading">Loading...</p>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-map-marker-alt"></i> <span data-key="label_location">Location</span></label>
+        <p id="farmerLocation" class="profile-field" data-key="loading">Loading...</p>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-seedling"></i> <span data-key="label_soil_type">Soil Type</span></label>
+        <p id="farmerSoil" class="profile-field" data-key="loading">Loading...</p>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-ruler-combined"></i> <span data-key="label_yield">Yield</span></label>
+        <p id="farmerFieldSize" class="profile-field" data-key="loading">Loading...</p>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-leaf"></i> <span data-key="label_crop_rotation">Crop Rotation</span></label>
+        <p id="farmerCrops" class="profile-field" data-key="loading">Loading...</p>
+      </div>
+
+      <div class="auth-actions">
+        <a href="indexnext.html" class="btn-primary"><i class="fas fa-home"></i> <span data-key="btn_go_home">Go Home</span></a>
+        <a href="index.html" class="btn-primary"><i class="fas fa-sign-in-alt"></i> <span data-key="btn_logout">Logout</span></a>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>
+

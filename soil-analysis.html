@@ -1,0 +1,174 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-key="page_title">Soil Report Analysis</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <header>
+    <h1 data-key="header_title">Soil Report Analysis</h1>
+    <p data-key="header_desc">Upload your soil test reports or soil profiles in PDF format and get AI-based crop recommendations.</p>
+
+    <!-- Hamburger Menu Icon -->
+    <div id="menu-toggle" class="menu-toggle">
+      <i class="fas fa-bars"></i>
+    </div>
+
+    <button onclick="window.history.back()" class="back-btn">
+      <i class="fas fa-arrow-left"></i> <span data-key="go_back">Go Back</span>
+    </button>
+  </header>
+
+  <!-- Sidebar Navigation -->
+  <nav class="sidebar" id="sidebar">
+    <ul class="nav-cards">
+      <li><a href="index.html" class="nav-card"><i class="fas fa-home"></i> <span data-key="home">Home</span></a></li>
+      <li><a href="farmerprofile.html" class="nav-card"><i class="fas fa-user"></i> <span data-key="nav_profile">Profile</span></a></li>
+      <li><a href="recommendations.html" class="nav-card"><i class="fas fa-robot"></i> <span data-key="ai_recommendations">AI Recommendations</span></a></li>
+      <li><a href="soil-analysis.html" class="nav-card"><i class="fas fa-seedling"></i> <span data-key="soil_profile">Soil Profile</span></a></li>
+      <li><a href="disease-detection.html" class="nav-card"><i class="fas fa-bug"></i> <span data-key="disease_check">Disease Check</span></a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <section class="recommendation-form">
+      <form id="soilForm">
+        <div class="input-group">
+          <i class="fas fa-file-pdf"></i>
+          <input type="file" name="soilReport" accept="application/pdf" required data-key-placeholder="upload_pdf">
+        </div>
+
+        <div class="input-group">
+          <i class="fas fa-map-marker-alt"></i>
+          <input type="text" name="location" required data-key-placeholder="enter_location">
+        </div>
+
+        <button type="submit" class="btn" data-key="analyze_btn">Analyze Report</button>
+      </form>
+    </section>
+
+    <section class="recommendation-results" id="soilResults">
+      <!-- Analysis results will appear here -->
+    </section>
+  </main>
+
+  <script src="matruka-ai.js"></script>
+
+  <script>
+    const menuToggle = document.getElementById('menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+    });
+
+    const translations = {
+      en: {
+        page_title: "Soil Report Analysis",
+        header_title: "Soil Report Analysis",
+        header_desc: "Upload your soil test reports or soil profiles in PDF format and get AI-based crop recommendations.",
+        go_back: "Go Back",
+        home: "Home",
+        nav_profile: "Profile",
+        ai_recommendations: "AI Recommendations",
+        soil_profile: "Soil Profile",
+        disease_check: "Disease Check",
+        upload_pdf: "Upload soil report (PDF)",
+        enter_location: "Enter farm location",
+        analyze_btn: "Analyze Report",
+        recommended_crops: "Recommended Crops for Your Soil",
+        note_text: "Note: Upload real soil analysis PDFs for precise AI-based recommendations."
+      },
+      hi: {
+        page_title: "मृदा रिपोर्ट विश्लेषण",
+        header_title: "मृदा रिपोर्ट विश्लेषण",
+        header_desc: "अपनी मृदा परीक्षण रिपोर्ट या मृदा प्रोफ़ाइल PDF में अपलोड करें और AI-आधारित फसल सिफारिशें प्राप्त करें।",
+        go_back: "वापस जाएं",
+        home: "होम",
+        nav_profile: "प्रोफ़ाइल",
+        ai_recommendations: "एआई सिफारिशें",
+        soil_profile: "मृदा प्रोफ़ाइल",
+        disease_check: "रोग जांच",
+        upload_pdf: "मृदा रिपोर्ट अपलोड करें (PDF)",
+        enter_location: "खेती का स्थान दर्ज करें",
+        analyze_btn: "रिपोर्ट विश्लेषण करें",
+        recommended_crops: "आपकी मृदा के लिए अनुशंसित फसलें",
+        note_text: "नोट: सटीक एआई आधारित सिफारिशों के लिए वास्तविक मृदा विश्लेषण PDF अपलोड करें।"
+      }
+    };
+
+    function applyLanguage(lang) {
+      document.querySelectorAll('[data-key]').forEach(el => {
+        const key = el.getAttribute('data-key');
+        if (translations[lang][key]) el.textContent = translations[lang][key];
+      });
+
+      document.querySelectorAll('[data-key-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-key-placeholder');
+        if (translations[lang][key]) el.placeholder = translations[lang][key];
+      });
+
+      const titleEl = document.querySelector('title[data-key]');
+      if (titleEl && translations[lang][titleEl.getAttribute("data-key")]) {
+        document.title = translations[lang][titleEl.getAttribute("data-key")];
+      }
+
+      localStorage.setItem("selectedLanguage", lang);
+    }
+
+    // Init on page load
+    document.addEventListener("DOMContentLoaded", () => {
+      applyLanguage(localStorage.getItem("selectedLanguage") || 'en');
+    });
+
+    // Gemini Soil Form Logic
+    const soilForm = document.getElementById('soilForm');
+    const soilResults = document.getElementById('soilResults');
+
+    soilForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const location = soilForm.location.value.trim();
+      const file = soilForm.soilReport.files[0];
+
+      if (!window.MatrukaAI) {
+        soilResults.innerHTML = '<div class="notice"><i class="fas fa-triangle-exclamation"></i><span>AI helper is not loaded.</span></div>';
+        return;
+      }
+
+      const prompt = `Read this soil report PDF for a farm near ${location || 'an unspecified location'}.
+Return concise sections: Soil Summary, pH/NPK Interpretation, Best Crop Choices, Fertilizer and Organic Matter Plan, Irrigation Notes, Risk Flags, and Next Soil Test. Use practical Indian farming language and do not invent values that are missing.`;
+
+      window.MatrukaAI.showLoading(soilResults, 'Analyzing soil report with Gemini...');
+
+      try {
+        const aiText = await window.MatrukaAI.generateText(prompt, {
+          file: file,
+          systemInstruction: 'You are a careful soil analysis assistant. Distinguish measured facts from recommendations.',
+          maxOutputTokens: 3200,
+          thinkingBudget: 0
+        });
+        soilResults.innerHTML = window.MatrukaAI.renderMarkdown(aiText);
+      } catch (error) {
+        let fallback = '## Recommended Crops\n- Wheat\n- Maize\n- Pulses\n## Soil Plan\n- Add compost before sowing\n- Test pH, nitrogen, phosphorus, and potassium before fertilizer purchase\n## Note\n- Upload a clear soil analysis PDF and add a Gemini key for precise AI review';
+        const lower = location.toLowerCase();
+        if (lower.includes('tropical')) {
+          fallback = '## Recommended Crops\n- Rice\n- Banana\n- Sugarcane\n## Soil Plan\n- Maintain organic matter\n- Watch drainage and fungal pressure in humid weeks';
+        } else if (lower.includes('arid')) {
+          fallback = '## Recommended Crops\n- Millets\n- Sorghum\n- Chickpeas\n## Soil Plan\n- Mulch heavily\n- Prefer drip irrigation and drought-tolerant varieties';
+        }
+        soilResults.innerHTML = '<div class="notice"><i class="fas fa-circle-info"></i><span>' + window.MatrukaAI.escapeHtml(error.message) + '</span></div>' + window.MatrukaAI.renderMarkdown(fallback);
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+

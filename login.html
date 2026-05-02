@@ -1,0 +1,149 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-key="login_title"></title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="navbar">
+    <div class="logo">
+      <i class="fas fa-seedling fa-2x"></i> <span data-key="app_name">Matruka</span>
+    </div>
+    <button onclick="window.history.back()" class="back-btn">
+      <i class="fas fa-arrow-left"></i> <span data-key="go_back"></span>
+    </button>
+    
+    <!-- Language Script -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const lang = localStorage.getItem("selectedLanguage") || "en"; 
+        applyLanguage(lang);
+      });
+      
+      function applyLanguage(lang) {
+        document.querySelectorAll("[data-key]").forEach(el => {
+          el.textContent = translations[lang][el.getAttribute("data-key")];
+        });
+      }
+    </script>
+  </header>
+
+  <!-- Login Form -->
+  <section class="auth-container">
+    <div class="auth-card">
+      <h2><i class="fas fa-sign-in-alt"></i> <span data-key="login_title"></span></h2>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="email" data-key="email_label"></label>
+          <input type="email" id="email" placeholder="" data-key-placeholder="email_placeholder" required>
+        </div>
+        <div class="form-group">
+          <label for="password" data-key="password_label"></label>
+          <input type="password" id="password" placeholder="" data-key-placeholder="password_placeholder" required>
+        </div>
+        <button type="submit" class="btn-primary" data-key="login_btn"></button>
+      </form>
+      <p class="auth-switch" data-key="signup_prompt">Don't have an account? <a href="signup.html" data-key="signup_here">Sign up here</a></p>
+    </div>
+  </section>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  
+    const firebaseConfig = {
+      apiKey: "AIzaSyBpv6VRIxdC9CMy3PpvK1S12QX3Rg2xkxU",
+      authDomain: "matruka-2025.firebaseapp.com",
+      databaseURL: "https://matruka-2025-default-rtdb.firebaseio.com",
+      projectId: "matruka-2025",
+      storageBucket: "matruka-2025.firebasestorage.app",
+      messagingSenderId: "944698526913",
+      appId: "1:944698526913:web:1b1c095335dc98e1291840",
+      measurementId: "G-GXH6E367CF"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        const docRef = doc(db, "farmers", user.uid);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          window.location.href = "indexnext.html";
+        } else {
+          window.location.href = "farmer-details.html";
+        }
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+  </script>
+
+  <script>
+    const translations = {
+      en: {
+        app_name: "Matruka",
+        login_title: "Login",
+        go_back: "Go Back",
+        email_label: "Email Address",
+        email_placeholder: "Enter your email",
+        password_label: "Password",
+        password_placeholder: "Enter your password",
+        login_btn: "Login",
+        signup_prompt: "Don't have an account?",
+        signup_here: "Sign up here"
+      },
+      hi: {
+        app_name: "Matruka",
+        login_title: "लॉगिन",
+        go_back: "वापस जाएं",
+        email_label: "ईमेल पता",
+        email_placeholder: "अपना ईमेल दर्ज करें",
+        password_label: "पासवर्ड",
+        password_placeholder: "अपना पासवर्ड दर्ज करें",
+        login_btn: "लॉगिन",
+        signup_prompt: "अभी तक खाता नहीं बनाया?",
+        signup_here: "यहाँ साइन अप करें"
+      }
+    };
+
+    function setLanguage(lang) {
+      document.querySelectorAll('[data-key]').forEach(el => {
+        const key = el.getAttribute('data-key');
+        if(translations[lang][key]) el.innerText = translations[lang][key];
+      });
+      document.querySelectorAll('[data-key-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-key-placeholder');
+        if(translations[lang][key]) el.placeholder = translations[lang][key];
+      });
+      localStorage.setItem("selectedLanguage", lang);
+    }
+
+    // Default language
+    setLanguage(localStorage.getItem("selectedLanguage") || 'en');
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById('en-btn')?.addEventListener('click', () => setLanguage('en'));
+      document.getElementById('hi-btn')?.addEventListener('click', () => setLanguage('hi'));
+    });
+  </script>
+
+</body>
+</html>
+
